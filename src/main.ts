@@ -1,6 +1,7 @@
 import { PDFDocument, PDFPage, PDFFont, StandardFonts, rgb } from 'pdf-lib';
 import QRCode from 'qrcode';
 import './styles.css';
+import senderLogoUrl from './assets/figueiredo-logo.png';
 
 type RecipientMode = 'text' | 'logo';
 
@@ -10,7 +11,6 @@ interface LabelState {
   senderCity: string;
   senderCep: string;
   senderPhone: string;
-  senderLogo: string;
   carrier: string;
   recipientMode: RecipientMode;
   recipientName: string;
@@ -34,7 +34,7 @@ interface LabelState {
   labelHeight: number;
 }
 
-const STORAGE_KEY = 'etiqueta-certa-draft-v1';
+const STORAGE_KEY = 'etiqueta-certa-draft-v2';
 
 const defaults: LabelState = {
   senderName: 'Figueiredo Autopeças',
@@ -42,7 +42,6 @@ const defaults: LabelState = {
   senderCity: 'Feira de Santana - BA',
   senderCep: '44002-748',
   senderPhone: '(75) 98229-2867',
-  senderLogo: '',
   carrier: 'Wilian Transportes',
   recipientMode: 'text',
   recipientName: '',
@@ -62,8 +61,8 @@ const defaults: LabelState = {
   length: '',
   quantity: '1',
   volumes: 1,
-  labelWidth: 70,
-  labelHeight: 140,
+  labelWidth: 100,
+  labelHeight: 150,
 };
 
 function loadState(): LabelState {
@@ -116,10 +115,7 @@ app.innerHTML = `
             <label class="field"><span>Cidade / UF</span><input data-field="senderCity" /></label>
             <label class="field"><span>CEP</span><input data-field="senderCep" inputmode="numeric" /></label>
             <label class="field"><span>Telefone</span><input data-field="senderPhone" inputmode="tel" /></label>
-            <label class="upload-field">
-              <span class="upload-icon">+</span><span><strong>Logomarca do remetente</strong><small>PNG ou JPG</small></span>
-              <input id="senderLogoInput" type="file" accept="image/png,image/jpeg" />
-            </label>
+            <div class="fixed-logo-note full"><img src="${senderLogoUrl}" alt="Logo Figueiredo Auto Peças" /><span><strong>Logo padrão da loja</strong><small>Aplicada automaticamente na etiqueta</small></span></div>
           </div>
         </section>
 
@@ -147,7 +143,7 @@ app.innerHTML = `
         <section class="form-card">
           <div class="section-heading"><span>3</span><div><h2>Endereço de entrega</h2><p>Este endereço gera o QR Code automaticamente</p></div></div>
           <div class="field-grid address-grid">
-            <label class="field cep-field"><span>CEP <b>*</b></span><div class="input-action"><input data-field="cep" inputmode="numeric" maxlength="9" placeholder="00000-000" required /><button id="cepButton" type="button">Buscar</button></div><small id="cepMessage"></small></label>
+            <label class="field cep-field"><span>CEP <em>(opcional)</em></span><div class="input-action"><input data-field="cep" inputmode="numeric" maxlength="9" placeholder="00000-000" /><button id="cepButton" type="button">Buscar</button></div><small id="cepMessage"></small></label>
             <label class="field street-field"><span>Rua / Avenida <b>*</b></span><input data-field="street" autocomplete="address-line1" required /></label>
             <label class="field number-field"><span>Número <b>*</b></span><input data-field="number" required /></label>
             <label class="field complement-field"><span>Complemento</span><input data-field="complement" autocomplete="address-line2" /></label>
@@ -181,12 +177,12 @@ app.innerHTML = `
         </section>
 
         <details class="settings-card">
-          <summary><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>Configuração da etiqueta</span><small>70 × 140 mm</small></summary>
+          <summary><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>Configuração da etiqueta</span><small>100 × 150 mm</small></summary>
           <div class="field-grid two settings-fields">
             <label class="field suffix-field"><span>Largura</span><div><input data-field="labelWidth" type="number" min="30" max="220" /><em>mm</em></div></label>
             <label class="field suffix-field"><span>Altura</span><div><input data-field="labelHeight" type="number" min="30" max="300" /><em>mm</em></div></label>
           </div>
-          <p>A medida atual é provisória. Confirme o tamanho físico da etiqueta antes da impressão definitiva.</p>
+          <p>Padrão 100 × 150 mm para etiqueta logística na Tomate MDK. Ao imprimir, use tamanho real (100%) e sem margens.</p>
         </details>
 
         <div class="desktop-actions">
@@ -269,9 +265,7 @@ function recipientMarkup(): string {
 }
 
 function senderMark(): string {
-  if (state.senderLogo) return `<img class="sender-logo" src="${state.senderLogo}" alt="Logomarca do remetente" />`;
-  const initials = state.senderName.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase() || 'EC';
-  return `<span class="sender-placeholder">${escapeHtml(initials)}</span>`;
+  return `<img class="sender-logo" src="${senderLogoUrl}" alt="Logo Figueiredo Auto Peças" />`;
 }
 
 async function updatePreview() {
@@ -387,15 +381,15 @@ async function lookupCep() {
   }
 }
 
-function readImage(file: File, target: 'senderLogo' | 'recipientLogo') {
+function readImage(file: File) {
   if (file.size > 4 * 1024 * 1024) {
     showToast('Use uma imagem de até 4 MB.', 'error');
     return;
   }
   const reader = new FileReader();
   reader.onload = async () => {
-    state[target] = String(reader.result || '');
-    if (target === 'recipientLogo') document.querySelector('#recipientLogoName')!.textContent = file.name;
+    state.recipientLogo = String(reader.result || '');
+    document.querySelector('#recipientLogoName')!.textContent = file.name;
     saveDraft();
     await updatePreview();
   };
@@ -410,7 +404,6 @@ function validateBeforePdf(): boolean {
   if (!state.number.trim()) missing.push('número');
   if (!state.city.trim()) missing.push('cidade');
   if (!state.uf.trim()) missing.push('UF');
-  if (!state.cep.trim()) missing.push('CEP');
   if (missing.length) {
     showToast(`Preencha: ${missing.join(', ')}.`, 'error');
     return false;
@@ -491,20 +484,18 @@ async function drawPdfPage(pdf: PDFDocument, page: PDFPage, regular: PDFFont, bo
   drawPdfText(page, 'REMETENTE', margin + 2, margin + 2.4, 6.2, bold);
   const senderTextX = margin + 2;
   let senderY = margin + 8;
-  if (state.senderLogo) {
-    try {
-      const logo = await embedDataImage(pdf, state.senderLogo);
-      drawTopImage(page, logo, senderTextX, senderY, 16, 10);
-      senderY += 12;
-    } catch { /* keeps text fallback */ }
-  }
-  drawPdfLines(page, wrapPdfText(state.senderName, bold, 7.4, dividerX - margin - 4), senderTextX, senderY, 7.4, bold, 3.3);
-  senderY += 6;
+  try {
+    const logo = await embedDataImage(pdf, senderLogoUrl);
+    drawTopImage(page, logo, senderTextX, senderY, 13, 13);
+    senderY += 14;
+  } catch { /* keeps sender text visible if the asset cannot be embedded */ }
+  drawPdfLines(page, wrapPdfText(state.senderName, bold, 8.4, dividerX - margin - 4), senderTextX, senderY, 8.4, bold, 3.8);
+  senderY += 6.5;
   const senderLines = [state.senderAddress, state.senderCity, [state.senderCep && `CEP ${state.senderCep}`, state.senderPhone && `Tel. ${state.senderPhone}`].filter(Boolean).join(' | ')].filter(Boolean);
   senderLines.forEach((senderLine) => {
-    const wrapped = wrapPdfText(senderLine, regular, 5.6, dividerX - margin - 4);
-    drawPdfLines(page, wrapped, senderTextX, senderY, 5.6, regular, 2.7);
-    senderY += Math.max(1, wrapped.length) * 2.7;
+    const wrapped = wrapPdfText(senderLine, bold, 6.4, dividerX - margin - 4);
+    drawPdfLines(page, wrapped, senderTextX, senderY, 6.4, bold, 3);
+    senderY += Math.max(1, wrapped.length) * 3;
   });
 
   const rightX = dividerX + 2;
@@ -617,13 +608,9 @@ document.querySelectorAll<HTMLInputElement>('input[name="recipientMode"]').forEa
   });
 });
 
-document.querySelector<HTMLInputElement>('#senderLogoInput')!.addEventListener('change', (event) => {
-  const file = (event.target as HTMLInputElement).files?.[0];
-  if (file) readImage(file, 'senderLogo');
-});
 document.querySelector<HTMLInputElement>('#recipientLogoInput')!.addEventListener('change', (event) => {
   const file = (event.target as HTMLInputElement).files?.[0];
-  if (file) readImage(file, 'recipientLogo');
+  if (file) readImage(file);
 });
 
 document.querySelector('#cepButton')!.addEventListener('click', () => void lookupCep());
